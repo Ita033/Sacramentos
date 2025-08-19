@@ -1,0 +1,12 @@
+{
+  "name": "catequizados-app",
+  "version": "1.0.0",
+  "description": "A simple web app to show a name from a list.",
+  "main": "index.js",
+  "scripts": {
+    "start": "vercel dev"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.44.2"
+  }
+}
