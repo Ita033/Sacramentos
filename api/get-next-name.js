@@ -219,7 +219,10 @@ const turnosEspeciales = [
     { name: "Licetty Ojeda", message: "Reza por nuestra ingeniera y diseñadora" }
 ];
 
-const totalCiclo = (catequizados.length * 5) + catequistas.length;
+const totalCiclo = catequistas.length * 6; // 44 catequistas * 6 turnos = 264
+const turnoEspecial1 = Math.floor(totalCiclo / 3); // 88
+const turnoEspecial2 = Math.floor(totalCiclo / 3) * 2; // 176
+const turnoEspecial3 = totalCiclo - 1; // 263
 
 module.exports = async (req, res) => {
     try {
@@ -232,65 +235,34 @@ module.exports = async (req, res) => {
 
         if (error) throw error;
 
-        // Lógica de alternancia
-        const turnoGeneral = counterData.indice % 207;
-        const subciclo = turnoGeneral % 6;
-
+        // Lógica para determinar el turno
         let nombre, texto;
+        const indiceActual = counterData.indice % totalCiclo;
+        const indiceEnCicloCatequista = Math.floor(indiceActual / 6);
+        const tipoDeTurno = indiceActual % 6; // 0, 1, 2, 3, 4, o 5
 
-        if (turnoGeneral >= 204) {
-            // Turnos especiales
-            const turnoEspecial = turnoGeneral - 204;
-            nombre = turnosEspecial[turnoEspecial].name;
-            texto = turnosEspecial[turnoEspecial].message;
-        } else if (subciclo === 5) {
-            // Turno de catequista (cada 6)
-            nombre = catequistas[Math.floor(turnoGeneral / 6) % catequistas.length];
+        // Verificar si es un turno especial
+        if (indiceActual === turnoEspecial1 || indiceActual === turnoEspecial2 || indiceActual === turnoEspecial3) {
+            let turnoEspecial;
+            if (indiceActual === turnoEspecial1) turnoEspecial = turnosEspeciales[0];
+            else if (indiceActual === turnoEspecial2) turnoEspecial = turnosEspeciales[1];
+            else turnoEspecial = turnosEspeciales[2];
+
+            nombre = turnoEspecial.name;
+            texto = turnoEspecial.message;
+
+        } else if (tipoDeTurno === 5) {
+            // Turno de catequista
+            nombre = catequistas[indiceEnCicloCatequista % catequistas.length];
             texto = "Reza por nuestro catequista";
+
         } else {
-            // Turnos de catequizados
-            nombre = catequizados[turnoGeneral % catequizados.length];
+            // Turno de catequizado
+            nombre = catequizados[tipoDeTurno % catequizados.length];
             texto = "Reza por nuestro catequizado";
         }
         
-        let nextIndex = (counterData.indice + 1) % 207; // El ciclo se reinicia cada 207 turnos
-
-        await supabase
-            .from('contador')
-            .update({ indice: nextIndex })
-            .eq('id', counterData.id);
-
-        res.status(200).json({ name: nombre, message: texto });
-
-    } catch (error) {
-        res.status(500).json({ error: 'Error del servidor' });
-    }
-};
-module.exports = async (req, res) => {
-    try {
-        const supabase = createClient(supabaseUrl, supabaseKey);
-
-        const { data: counterData, error } = await supabase
-            .from('contador')
-            .select('indice, id')
-            .single();
-
-        if (error) throw error;
-
-        // Lógica de alternancia
-        const turno = counterData.indice % 6; // 0, 1, 2, 3, 4, 5
-
-        let nombre, texto;
-
-        if (turno < 5) { // Turnos 0 a 4: Catequizados
-            nombre = catequizados[counterData.indice % catequizados.length];
-            texto = "Reza por nuestro catequizado";
-        } else { // Turno 5: Catequistas
-            nombre = catequistas[Math.floor(counterData.indice / 6) % catequistas.length];
-            texto = "Reza por nuestro catequista";
-        }
-
-        let nextIndex = (counterData.indice + 1) % (catequizados.length * 6); // Ajuste del ciclo para la nueva lógica
+        let nextIndex = (counterData.indice + 1) % totalCiclo;
 
         await supabase
             .from('contador')
