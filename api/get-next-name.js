@@ -218,10 +218,14 @@ const turnosEspeciales = [
     { name: "Licetty Ojeda", message: "Reza por nuestra ingeniera y diseñadora" }
 ];
 
-const totalTurnosRegulares = (catequizados.length * catequistas.length) + catequistas.length;
-const totalCiclo = totalTurnosRegulares + turnosEspeciales.length; 
+const totalTurnosRegulares = (catequistas.length * 5) + catequistas.length; // 44 * 5 + 44 = 264
+const totalCiclo = totalTurnosRegulares + turnosEspeciales.length; // 264 + 3 = 267
 
-const intervaloEspecial = Math.floor(totalTurnosRegulares / turnosEspeciales.length);
+// Puntos de inserción para los turnos especiales
+const intervaloEspecial = Math.floor(totalTurnosRegulares / turnosEspeciales.length); // 264 / 3 = 88
+const turnoEspecial1 = intervaloEspecial; // El turno 88
+const turnoEspecial2 = intervaloEspecial * 2; // El turno 176
+const turnoEspecial3 = totalTurnosRegulares; // El turno 264
 
 module.exports = async (req, res) => {
     try {
@@ -245,34 +249,35 @@ module.exports = async (req, res) => {
         const indiceActual = counterData.indice % totalCiclo;
         let nombre, texto;
 
-        // Verificar si es un turno especial
-        if (indiceActual === intervaloEspecial -1) {
+        // 1. Lógica para los turnos especiales
+        if (indiceActual === turnoEspecial1) {
             nombre = turnosEspeciales[0].name;
             texto = turnosEspeciales[0].message;
-        } else if (indiceActual === (intervaloEspecial * 2) -1) {
+        } else if (indiceActual === turnoEspecial2) {
             nombre = turnosEspeciales[1].name;
             texto = turnosEspeciales[1].message;
-        } else if (indiceActual === totalTurnosRegulares -1) {
+        } else if (indiceActual === turnoEspecial3) {
             nombre = turnosEspeciales[2].name;
             texto = turnosEspeciales[2].message;
         } else {
-            // Lógica para catequizados y catequistas
+            // 2. Lógica para catequizados y catequistas
+            // Ajustamos el índice para que ignore los turnos especiales
             let indiceRegular = indiceActual;
-            if (indiceActual >= intervaloEspecial -1) indiceRegular--;
-            if (indiceActual >= (intervaloEspecial * 2) -1) indiceRegular--;
-            if (indiceActual >= totalTurnosRegulares -1) indiceRegular--;
+            if (indiceActual > turnoEspecial1) indiceRegular--;
+            if (indiceActual > turnoEspecial2) indiceRegular--;
+            if (indiceActual > turnoEspecial3) indiceRegular--;
 
-            const tipoDeTurno = indiceRegular % 6;
-            const indiceEnCicloCatequista = Math.floor(indiceRegular / 6);
-
+            const tipoDeTurno = indiceRegular % 6; // 0, 1, 2, 3, 4 (catequizado) o 5 (catequista)
+            
             if (tipoDeTurno === 5) {
                 // Es un turno de catequista
-                nombre = catequistas[indiceEnCicloCatequista % catequistas.length];
+                const indiceCatequista = Math.floor(indiceRegular / 6);
+                nombre = catequistas[indiceCatequista % catequistas.length];
                 texto = "Reza por nuestro catequista";
             } else {
                 // Es un turno de catequizado
-                const indiceCatequizado = (indiceRegular - indiceEnCicloCatequista) % catequizados.length;
-                nombre = catequizados[indiceCatequizado];
+                const indiceCatequizado = Math.floor(indiceRegular / 6) * 5 + tipoDeTurno;
+                nombre = catequizados[indiceCatequizado % catequizados.length];
                 texto = "Reza por nuestro catequizado";
             }
         }
