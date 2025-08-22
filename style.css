@@ -52,7 +52,7 @@ h1 {
 .frase-acutis {
     font-family: 'League Spartan', sans-serif; /* Usando League Spartan */
     font-size: 0.75em;
-    color: #c7ecee; /* Color para la frase de Acutis */
+    color: #00b6c1; /* Color para la frase de Acutis */
     margin-top: 10px;
 }
 
@@ -75,3 +75,4 @@ h1 {
         font-size: 0.6em;
     }
 }
+
