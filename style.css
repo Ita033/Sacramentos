@@ -6,7 +6,7 @@ body {
     color: #333;
     display: flex;
     flex-direction: column;
-    justify-content: space-around; /* Distribuye el espacio verticalmente */
+    justify-content: space-between; /* Distribuye el espacio verticalmente */
     align-items: center; /* Centra horizontalmente */
     min-height: 100vh; /* Ocupa toda la altura de la pantalla */
     text-align: center;
@@ -22,6 +22,13 @@ body {
     padding: 20px;
     box-sizing: border-box;
     max-width: 90%; /* Limita el ancho en pantallas grandes */
+}
+
+.logo {
+    width: 160px; /* Doble del tamaño original (80px * 2) */
+    height: auto;
+    margin-top: 20px;
+    margin-bottom: 10px;
 }
 
 h1 {
@@ -40,18 +47,11 @@ h1 {
     max-width: 100%;
 }
 
-.logo {
-    width: 160px; /* Doble del tamaño original (80px * 2) */
-    height: auto;
-    margin-top: 20px;
-    margin-bottom: 10px; /* Reduzco un poco el margen inferior para la frase */
-}
-
 .frase-acutis {
     font-family: 'Courier New', Courier, monospace; /* Simula tipografía monospace */
-    font-size: 0.8em; /* Tamaño más pequeño para la frase */
-    color: #777; /* Color grisáceo */
-    margin-bottom: 20px;
+    font-size: 0.75em; /* 0.75 del tamaño base */
+    color: #4682b4; /* Mismo color azul que "Reza por..." */
+    margin-top: 10px;
 }
 
 /* Media Query para pantallas aún más pequeñas */
@@ -70,6 +70,6 @@ h1 {
         margin-bottom: 5px;
     }
     .frase-acutis {
-        font-size: 0.7em;
+        font-size: 0.6em;
     }
 }
