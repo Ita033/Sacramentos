@@ -1,10 +1,6 @@
 // Este código solo funciona en Vercel, no en tu PC.
-// Necesitarás instalar la librería de Supabase
-// npm install @supabase/supabase-js
-
 const { createClient } = require('@supabase/supabase-js');
 
-// Los datos de tu base de datos deben estar en las variables de entorno de Vercel
 const supabaseUrl = process.env.SUPABASE_URL;
 const supabaseKey = process.env.SUPABASE_KEY;
 
@@ -169,32 +165,85 @@ const catequizados = [
     "Catalina Caro"
 ];
 
+const catequistas = [
+    "Federico Pinto",
+    "Josefina Abbott",
+    "Juan Andrés Caraballo",
+    "Ignacio Phillips",
+    "Pedro Rojas",
+    "Isidora Montiel",
+    "Rosario Salas",
+    "Clemente Lecaros",
+    "Enzo Giuliano Troncoso",
+    "Matías Guzmán",
+    "Santiago Guridi",
+    "Martín Izcúe",
+    "Javier Jordán",
+    "Blanca Larraín",
+    "Gregorio Cox",
+    "Josefina Munita",
+    "Antonio León",
+    "Elías Basulto",
+    "Domingo García",
+    "Ximena Fernández",
+    "Fernanda Monlezun",
+    "Lucas Vega",
+    "Santiago Andonaegui",
+    "Gabriela Martínez",
+    "Juan Diego Grez",
+    "Teresita Ríos",
+    "José Antonio Widow",
+    "Elisa Strobl",
+    "Juan Pablo Barría",
+    "Constanza Rehbein",
+    "Nicolás Ortúzar",
+    "María del Carmen Celis",
+    "Juan Frontaura",
+    "Florencia Reyes",
+    "José Miguel Irarrázaval",
+    "Karina Devia",
+    "José Manuel Amenábar",
+    "Yolanda Lecaros",
+    "Diego Basaure",
+    "Teresa García",
+    "Amelia Molinos",
+    "Teresita Ortúzar",
+    "María Gracia Arriagada",
+    "Daniel Pérez"
+];
+
 module.exports = async (req, res) => {
     try {
         const supabase = createClient(supabaseUrl, supabaseKey);
 
-        // 1. Obtener el índice actual Y el ID del registro
-        // La columna 'id' se incluye aquí para poder usarla al actualizar el registro.
         const { data: counterData, error } = await supabase
             .from('contador')
-            .select('indice, id') 
+            .select('indice, id')
             .single();
 
         if (error) throw error;
 
-        // 2. Calcular el próximo índice
-        let nextIndex = (counterData.indice + 1) % catequizados.length;
+        // Lógica de alternancia
+        const turno = counterData.indice % 6; // 0, 1, 2, 3, 4, 5
 
-        // 3. Actualizar el índice en la base de datos
-        // Usamos el 'id' del registro para asegurarnos de actualizar la fila correcta.
+        let nombre, texto;
+
+        if (turno < 5) { // Turnos 0 a 4: Catequizados
+            nombre = catequizados[counterData.indice % catequizados.length];
+            texto = "Reza por nuestro catequizado";
+        } else { // Turno 5: Catequistas
+            nombre = catequistas[Math.floor(counterData.indice / 6) % catequistas.length];
+            texto = "Reza por nuestro catequista";
+        }
+
+        let nextIndex = (counterData.indice + 1) % (catequizados.length * 6); // Ajuste del ciclo para la nueva lógica
+
         await supabase
             .from('contador')
             .update({ indice: nextIndex })
             .eq('id', counterData.id);
 
-        // 4. Devolver el nombre correspondiente
-        // Se devuelve el nombre que corresponde al índice actual, NO al siguiente.
-        res.status(200).json({ name: catequizados[counterData.indice] });
+        res.status(200).json({ name: nombre, message: texto });
 
     } catch (error) {
         res.status(500).json({ error: 'Error del servidor' });
