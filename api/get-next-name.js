@@ -218,13 +218,46 @@ const turnosEspeciales = [
     { name: "Licetty Ojeda", message: "Reza por nuestra ingeniera y diseñadora" }
 ];
 
-const totalTurnosRegulares = catequistas.length * 6; // 44 * 6 = 264
-const totalCiclo = totalTurnosRegulares + turnosEspeciales.length; // 264 + 3 = 267
+const totalCiclo = (catequistas.length * 6) + turnosEspeciales.length; // 44 * 6 + 3 = 267 turnos
 
-const intervaloEspecial = Math.floor(totalTurnosRegulares / turnosEspeciales.length); // 264 / 3 = 88
-const turnoEspecial1 = intervaloEspecial; // Turno 88
-const turnoEspecial2 = intervaloEspecial * 2; // Turno 176
-const turnoEspecial3 = intervaloEspecial * 3; // Turno 264
+// Esta función simplifica la lógica de selección de nombres y mensajes.
+const getTurnoInfo = (indice) => {
+    const indiceNormalizado = indice % totalCiclo;
+    let nombre, texto;
+
+    // Turnos especiales equidistantes
+    const intervaloEspecial = Math.floor((catequistas.length * 6) / turnosEspeciales.length); // 88
+    
+    // El último turno del ciclo (266) es el último especial
+    if (indiceNormalizado === intervaloEspecial -1) {
+        return turnosEspeciales[0];
+    } else if (indiceNormalizado === (intervaloEspecial * 2) -1) {
+        return turnosEspeciales[1];
+    } else if (indiceNormalizado === totalCiclo -1) {
+        return turnosEspeciales[2];
+    }
+
+    // Lógica para catequizados y catequistas
+    let indiceAjustado = indiceNormalizado;
+    if (indiceNormalizado >= intervaloEspecial) indiceAjustado--;
+    if (indiceNormalizado >= intervaloEspecial * 2) indiceAjustado--;
+    if (indiceNormalizado >= totalCiclo - 1) indiceAjustado--;
+
+    const tipoDeTurno = indiceAjustado % 6;
+    
+    if (tipoDeTurno === 5) {
+        // Turno de catequista
+        const indiceCatequista = Math.floor(indiceAjustado / 6) % catequistas.length;
+        nombre = catequistas[indiceCatequista];
+        texto = "Reza por nuestro catequista";
+    } else {
+        // Turno de catequizado
+        nombre = catequizados[tipoDeTurno % catequizados.length];
+        texto = "Reza por nuestro catequizado";
+    }
+
+    return { name: nombre, message: texto };
+};
 
 module.exports = async (req, res) => {
     try {
@@ -235,41 +268,19 @@ module.exports = async (req, res) => {
             .select('indice, id')
             .single();
 
-        if (error) throw error;
-
-        const indiceActual = counterData.indice % totalCiclo;
-        let nombre, texto;
-
-        // 1. Verificar si el turno actual corresponde a una de las personas especiales.
-        if (indiceActual + 1 === turnoEspecial1) {
-            nombre = turnosEspeciales[0].name;
-            texto = turnosEspeciales[0].message;
-        } else if (indiceActual + 1 === turnoEspecial2) {
-            nombre = turnosEspeciales[1].name;
-            texto = turnosEspeciales[1].message;
-        } else if (indiceActual + 1 === totalCiclo) { // El último turno del ciclo (267) es el último especial
-            nombre = turnosEspeciales[2].name;
-            texto = turnosEspeciales[2].message;
-        } else {
-            // 2. Si no es un turno especial, calcular la posición en el ciclo regular (264 turnos)
-            let indiceRegular = indiceActual;
-            if (indiceActual >= turnoEspecial1) indiceRegular--;
-            if (indiceActual >= turnoEspecial2) indiceRegular--;
-            if (indiceActual >= totalCiclo - 1) indiceRegular--;
-
-            const tipoDeTurno = indiceRegular % 6;
-            const indiceEnCicloCatequista = Math.floor(indiceRegular / 6);
-
-            if (tipoDeTurno === 5) {
-                // Es un turno de catequista
-                nombre = catequistas[indiceEnCicloCicloCatequista % catequistas.length];
-                texto = "Reza por nuestro catequista";
-            } else {
-                // Es un turno de catequizado
-                nombre = catequizados[tipoDeTurno % catequizados.length];
-                texto = "Reza por nuestro catequizado";
-            }
+        if (error || !counterData) {
+            console.error("Error fetching from Supabase:", error);
+            // Si la fila no existe, crea una nueva.
+            const { data: newData, error: newError } = await supabase
+                .from('contador')
+                .insert([{ indice: 0 }])
+                .select()
+                .single();
+            if (newError) throw newError;
+            counterData = newData;
         }
+
+        const { name, message } = getTurnoInfo(counterData.indice);
         
         let nextIndex = (counterData.indice + 1) % totalCiclo;
 
@@ -278,9 +289,10 @@ module.exports = async (req, res) => {
             .update({ indice: nextIndex })
             .eq('id', counterData.id);
 
-        res.status(200).json({ name: nombre, message: texto });
+        res.status(200).json({ name, message });
 
     } catch (error) {
-        res.status(500).json({ error: 'Error del servidor' });
+        console.error("Server error:", error);
+        res.status(500).json({ error: 'Error del servidor. Por favor, revisa los logs de Vercel.' });
     }
 };
