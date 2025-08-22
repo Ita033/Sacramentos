@@ -218,7 +218,7 @@ const turnosEspeciales = [
     { name: "Licetty Ojeda", message: "Reza por nuestra ingeniera y diseñadora" }
 ];
 
-const totalTurnosRegulares = (catequistas.length * 5) + catequistas.length; // 44 * 5 + 44 = 264
+const totalTurnosRegulares = (catequistas.length * 4) + catequistas.length; // 44 * 5 + 44 = 264 Ahora 4 no 5
 const totalCiclo = totalTurnosRegulares + turnosEspeciales.length; // 264 + 3 = 267
 
 // Puntos de inserción para los turnos especiales
@@ -296,3 +296,4 @@ module.exports = async (req, res) => {
         res.status(500).json({ error: 'Error del servidor. Por favor, revisa los logs de Vercel.' });
     }
 };
+
