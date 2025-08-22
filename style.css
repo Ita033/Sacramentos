@@ -1,19 +1,19 @@
 body {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    font-family: 'League Spartan', sans-serif;
     margin: 0;
     padding: 0;
-    background-color: #fff; /* Fondo blanco */
+    background-color: #fffef5; /* Fondo */
     color: #333;
     display: flex;
     flex-direction: column;
-    justify-content: flex-start; /* Alinea el contenido al inicio (arriba) */
-    align-items: center; /* Centra horizontalmente */
-    min-height: 100vh; /* Ocupa toda la altura de la pantalla */
+    justify-content: flex-start;
+    align-items: center;
+    min-height: 100vh;
     text-align: center;
-    box-sizing: border-box; /* Incluye padding y border en el cálculo del ancho/alto */
-    font-size: 1.5em; /* Aumento del 50% en la tipografía base */
-    padding-top: 5vh; /* Empuja el contenido hacia abajo desde la parte superior (ajusta según sea necesario) */
-    padding-bottom: 15vh; /* Reduce el espacio en la parte inferior */
+    box-sizing: border-box;
+    font-size: 1.5em;
+    padding-top: 5vh;
+    padding-bottom: 15vh;
 }
 
 .content-container {
@@ -23,40 +23,40 @@ body {
     justify-content: center;
     padding: 20px;
     box-sizing: border-box;
-    max-width: 90%; /* Limita el ancho en pantallas grandes */
+    max-width: 90%;
 }
 
 .logo {
-    width: 160px; /* Doble del tamaño original (80px * 2) */
+    width: 160px;
     height: auto;
     margin-top: 20px;
     margin-bottom: 10px;
 }
 
 h1 {
-    color: #4682b4; /* Celeste */
-    font-size: 1.7em; /* Ajuste del tamaño del título */
+    color: #00b6c1; /* Color para "Reza por nuestro catequizado" */
+    font-size: 1.7em;
     margin-bottom: 20px;
 }
 
 #nombre-catequizado {
-    font-size: 2em; /* Ajuste del tamaño del nombre */
-    color: #00008b; /* Azul oscuro */
+    font-size: 2em;
+    color: #052f78; /* Color para el nombre del catequizado */
     padding: 15px;
-    background-color: #f0f8ff;
+    background-color: transparent; /* Fondo transparente para el nombre */
     border-radius: 10px;
     word-wrap: break-word;
     max-width: 100%;
 }
 
 .frase-acutis {
-    font-family: 'Courier New', Courier, monospace; /* Simula tipografía monospace */
-    font-size: 0.75em; /* 0.75 del tamaño base */
-    color: #4682b4; /* Mismo color azul que "Reza por..." */
+    font-family: 'League Spartan', sans-serif; /* Usando League Spartan */
+    font-size: 0.75em;
+    color: #c7ecee; /* Color para la frase de Acutis */
     margin-top: 10px;
 }
 
-/* Media Query para pantallas aún más pequeñas */
+/* Media Query para pantallas más pequeñas */
 @media (max-width: 400px) {
     h1 {
         font-size: 1.4em;
@@ -67,7 +67,7 @@ h1 {
         padding: 10px;
     }
     .logo {
-        width: 120px; /* Ajuste para pantallas más pequeñas */
+        width: 120px;
         margin-top: 15px;
         margin-bottom: 5px;
     }
