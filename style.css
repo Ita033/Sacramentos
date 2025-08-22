@@ -6,10 +6,11 @@ body {
     color: #333;
     display: flex;
     flex-direction: column;
-    justify-content: center; /* Centra el contenido verticalmente */
-    align-items: center; /* Centra el contenido horizontalmente */
-    min-height: 100vh;
+    justify-content: space-around; /* Distribuye el espacio verticalmente */
+    align-items: center; /* Centra horizontalmente */
+    min-height: 100vh; /* Ocupa toda la altura de la pantalla */
     text-align: center;
+    box-sizing: border-box; /* Incluye padding y border en el cálculo del ancho/alto */
 }
 
 .content-container {
@@ -17,40 +18,47 @@ body {
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    flex-grow: 1; /* Permite que el contenedor crezca para ocupar el espacio */
     padding: 20px;
     box-sizing: border-box;
+    max-width: 90%; /* Limita el ancho en pantallas grandes */
 }
 
 h1 {
     color: #4682b4; /* Celeste */
-    font-size: 2.5em;
-    margin-bottom: 20px; /* Espacio entre el título y el nombre */
+    font-size: 2em;
+    margin-bottom: 20px;
 }
 
 #nombre-catequizado {
-    font-size: 3em;
+    font-size: 2.5em;
     color: #00008b; /* Azul oscuro */
-    padding: 20px;
-    background-color: #f0f8ff; /* Un ligero fondo celeste */
+    padding: 15px;
+    background-color: #f0f8ff;
     border-radius: 10px;
-    word-wrap: break-word; /* Para que el texto largo se ajuste */
-    max-width: 90%;
+    word-wrap: break-word;
+    max-width: 100%;
 }
 
 .logo {
     width: 80px;
     height: auto;
-    margin-top: 20px; /* Espacio arriba del logo */
-    margin-bottom: 20px; /* Espacio abajo del logo */
+    margin-top: 20px;
+    margin-bottom: 20px;
 }
 
-/* Media Query para pantallas más pequeñas (teléfonos) */
-@media (max-width: 600px) {
+/* Media Query para pantallas aún más pequeñas */
+@media (max-width: 400px) {
     h1 {
-        font-size: 1.8em;
+        font-size: 1.6em;
+        margin-bottom: 15px;
     }
     #nombre-catequizado {
-        font-size: 2.2em;
+        font-size: 1.8em;
+        padding: 10px;
+    }
+    .logo {
+        width: 60px;
+        margin-top: 15px;
+        margin-bottom: 15px;
     }
 }
