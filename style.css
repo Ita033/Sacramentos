@@ -1,0 +1,56 @@
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #fff; /* Fondo blanco */
+    color: #333;
+    display: flex;
+    flex-direction: column;
+    justify-content: center; /* Centra el contenido verticalmente */
+    align-items: center; /* Centra el contenido horizontalmente */
+    min-height: 100vh;
+    text-align: center;
+}
+
+.content-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    flex-grow: 1; /* Permite que el contenedor crezca para ocupar el espacio */
+    padding: 20px;
+    box-sizing: border-box;
+}
+
+h1 {
+    color: #4682b4; /* Celeste */
+    font-size: 2.5em;
+    margin-bottom: 20px; /* Espacio entre el título y el nombre */
+}
+
+#nombre-catequizado {
+    font-size: 3em;
+    color: #00008b; /* Azul oscuro */
+    padding: 20px;
+    background-color: #f0f8ff; /* Un ligero fondo celeste */
+    border-radius: 10px;
+    word-wrap: break-word; /* Para que el texto largo se ajuste */
+    max-width: 90%;
+}
+
+.logo {
+    width: 80px;
+    height: auto;
+    margin-top: 20px; /* Espacio arriba del logo */
+    margin-bottom: 20px; /* Espacio abajo del logo */
+}
+
+/* Media Query para pantallas más pequeñas (teléfonos) */
+@media (max-width: 600px) {
+    h1 {
+        font-size: 1.8em;
+    }
+    #nombre-catequizado {
+        font-size: 2.2em;
+    }
+}
