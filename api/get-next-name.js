@@ -212,6 +212,60 @@ const catequistas = [
     "Daniel Pérez"
 ];
 
+// Arreglo de los turnos especiales, cada uno con su nombre y mensaje
+const turnosEspeciales = [
+    { name: "Fray Gonzalo", message: "Reza por nuestro asesor" },
+    { name: "Italo Lubiano", message: "Reza por nuestro ingeniero" },
+    { name: "Licetty Ojeda", message: "Reza por nuestra ingeniera y diseñadora" }
+];
+
+const totalCiclo = (catequizados.length * 5) + catequistas.length;
+
+module.exports = async (req, res) => {
+    try {
+        const supabase = createClient(supabaseUrl, supabaseKey);
+
+        const { data: counterData, error } = await supabase
+            .from('contador')
+            .select('indice, id')
+            .single();
+
+        if (error) throw error;
+
+        // Lógica de alternancia
+        const turnoGeneral = counterData.indice % 207;
+        const subciclo = turnoGeneral % 6;
+
+        let nombre, texto;
+
+        if (turnoGeneral >= 204) {
+            // Turnos especiales
+            const turnoEspecial = turnoGeneral - 204;
+            nombre = turnosEspecial[turnoEspecial].name;
+            texto = turnosEspecial[turnoEspecial].message;
+        } else if (subciclo === 5) {
+            // Turno de catequista (cada 6)
+            nombre = catequistas[Math.floor(turnoGeneral / 6) % catequistas.length];
+            texto = "Reza por nuestro catequista";
+        } else {
+            // Turnos de catequizados
+            nombre = catequizados[turnoGeneral % catequizados.length];
+            texto = "Reza por nuestro catequizado";
+        }
+        
+        let nextIndex = (counterData.indice + 1) % 207; // El ciclo se reinicia cada 207 turnos
+
+        await supabase
+            .from('contador')
+            .update({ indice: nextIndex })
+            .eq('id', counterData.id);
+
+        res.status(200).json({ name: nombre, message: texto });
+
+    } catch (error) {
+        res.status(500).json({ error: 'Error del servidor' });
+    }
+};
 module.exports = async (req, res) => {
     try {
         const supabase = createClient(supabaseUrl, supabaseKey);
