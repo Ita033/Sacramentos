@@ -212,17 +212,19 @@ const catequistas = [
     "Daniel Pérez"
 ];
 
-// Arreglo de los turnos especiales, cada uno con su nombre y mensaje
 const turnosEspeciales = [
     { name: "Fray Gonzalo", message: "Reza por nuestro asesor" },
     { name: "Italo Lubiano", message: "Reza por nuestro ingeniero" },
     { name: "Licetty Ojeda", message: "Reza por nuestra ingeniera y diseñadora" }
 ];
 
-const totalCiclo = catequistas.length * 6; // 44 catequistas * 6 turnos = 264
-const turnoEspecial1 = Math.floor(totalCiclo / 3); // 88
-const turnoEspecial2 = Math.floor(totalCiclo / 3) * 2; // 176
-const turnoEspecial3 = totalCiclo - 1; // 263
+const totalTurnosRegulares = catequistas.length * 6; // 44 * 6 = 264
+const totalCiclo = totalTurnosRegulares + turnosEspeciales.length; // 264 + 3 = 267
+
+const intervaloEspecial = Math.floor(totalTurnosRegulares / turnosEspeciales.length); // 264 / 3 = 88
+const turnoEspecial1 = intervaloEspecial; // Turno 88
+const turnoEspecial2 = intervaloEspecial * 2; // Turno 176
+const turnoEspecial3 = intervaloEspecial * 3; // Turno 264
 
 module.exports = async (req, res) => {
     try {
@@ -235,31 +237,38 @@ module.exports = async (req, res) => {
 
         if (error) throw error;
 
-        // Lógica para determinar el turno
-        let nombre, texto;
         const indiceActual = counterData.indice % totalCiclo;
-        const indiceEnCicloCatequista = Math.floor(indiceActual / 6);
-        const tipoDeTurno = indiceActual % 6; // 0, 1, 2, 3, 4, o 5
+        let nombre, texto;
 
-        // Verificar si es un turno especial
-        if (indiceActual === turnoEspecial1 || indiceActual === turnoEspecial2 || indiceActual === turnoEspecial3) {
-            let turnoEspecial;
-            if (indiceActual === turnoEspecial1) turnoEspecial = turnosEspeciales[0];
-            else if (indiceActual === turnoEspecial2) turnoEspecial = turnosEspeciales[1];
-            else turnoEspecial = turnosEspeciales[2];
-
-            nombre = turnoEspecial.name;
-            texto = turnoEspecial.message;
-
-        } else if (tipoDeTurno === 5) {
-            // Turno de catequista
-            nombre = catequistas[indiceEnCicloCatequista % catequistas.length];
-            texto = "Reza por nuestro catequista";
-
+        // 1. Verificar si el turno actual corresponde a una de las personas especiales.
+        if (indiceActual + 1 === turnoEspecial1) {
+            nombre = turnosEspeciales[0].name;
+            texto = turnosEspeciales[0].message;
+        } else if (indiceActual + 1 === turnoEspecial2) {
+            nombre = turnosEspeciales[1].name;
+            texto = turnosEspeciales[1].message;
+        } else if (indiceActual + 1 === totalCiclo) { // El último turno del ciclo (267) es el último especial
+            nombre = turnosEspeciales[2].name;
+            texto = turnosEspeciales[2].message;
         } else {
-            // Turno de catequizado
-            nombre = catequizados[tipoDeTurno % catequizados.length];
-            texto = "Reza por nuestro catequizado";
+            // 2. Si no es un turno especial, calcular la posición en el ciclo regular (264 turnos)
+            let indiceRegular = indiceActual;
+            if (indiceActual >= turnoEspecial1) indiceRegular--;
+            if (indiceActual >= turnoEspecial2) indiceRegular--;
+            if (indiceActual >= totalCiclo - 1) indiceRegular--;
+
+            const tipoDeTurno = indiceRegular % 6;
+            const indiceEnCicloCatequista = Math.floor(indiceRegular / 6);
+
+            if (tipoDeTurno === 5) {
+                // Es un turno de catequista
+                nombre = catequistas[indiceEnCicloCicloCatequista % catequistas.length];
+                texto = "Reza por nuestro catequista";
+            } else {
+                // Es un turno de catequizado
+                nombre = catequizados[tipoDeTurno % catequizados.length];
+                texto = "Reza por nuestro catequizado";
+            }
         }
         
         let nextIndex = (counterData.indice + 1) % totalCiclo;
