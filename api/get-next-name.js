@@ -218,46 +218,10 @@ const turnosEspeciales = [
     { name: "Licetty Ojeda", message: "Reza por nuestra ingeniera y diseñadora" }
 ];
 
-const totalCiclo = (catequistas.length * 6) + turnosEspeciales.length; // 44 * 6 + 3 = 267 turnos
+const totalTurnosRegulares = (catequizados.length * catequistas.length) + catequistas.length;
+const totalCiclo = totalTurnosRegulares + turnosEspeciales.length; 
 
-// Esta función simplifica la lógica de selección de nombres y mensajes.
-const getTurnoInfo = (indice) => {
-    const indiceNormalizado = indice % totalCiclo;
-    let nombre, texto;
-
-    // Turnos especiales equidistantes
-    const intervaloEspecial = Math.floor((catequistas.length * 6) / turnosEspeciales.length); // 88
-    
-    // El último turno del ciclo (266) es el último especial
-    if (indiceNormalizado === intervaloEspecial -1) {
-        return turnosEspeciales[0];
-    } else if (indiceNormalizado === (intervaloEspecial * 2) -1) {
-        return turnosEspeciales[1];
-    } else if (indiceNormalizado === totalCiclo -1) {
-        return turnosEspeciales[2];
-    }
-
-    // Lógica para catequizados y catequistas
-    let indiceAjustado = indiceNormalizado;
-    if (indiceNormalizado >= intervaloEspecial) indiceAjustado--;
-    if (indiceNormalizado >= intervaloEspecial * 2) indiceAjustado--;
-    if (indiceNormalizado >= totalCiclo - 1) indiceAjustado--;
-
-    const tipoDeTurno = indiceAjustado % 6;
-    
-    if (tipoDeTurno === 5) {
-        // Turno de catequista
-        const indiceCatequista = Math.floor(indiceAjustado / 6) % catequistas.length;
-        nombre = catequistas[indiceCatequista];
-        texto = "Reza por nuestro catequista";
-    } else {
-        // Turno de catequizado
-        nombre = catequizados[tipoDeTurno % catequizados.length];
-        texto = "Reza por nuestro catequizado";
-    }
-
-    return { name: nombre, message: texto };
-};
+const intervaloEspecial = Math.floor(totalTurnosRegulares / turnosEspeciales.length);
 
 module.exports = async (req, res) => {
     try {
@@ -269,8 +233,6 @@ module.exports = async (req, res) => {
             .single();
 
         if (error || !counterData) {
-            console.error("Error fetching from Supabase:", error);
-            // Si la fila no existe, crea una nueva.
             const { data: newData, error: newError } = await supabase
                 .from('contador')
                 .insert([{ indice: 0 }])
@@ -280,7 +242,40 @@ module.exports = async (req, res) => {
             counterData = newData;
         }
 
-        const { name, message } = getTurnoInfo(counterData.indice);
+        const indiceActual = counterData.indice % totalCiclo;
+        let nombre, texto;
+
+        // Verificar si es un turno especial
+        if (indiceActual === intervaloEspecial -1) {
+            nombre = turnosEspeciales[0].name;
+            texto = turnosEspeciales[0].message;
+        } else if (indiceActual === (intervaloEspecial * 2) -1) {
+            nombre = turnosEspeciales[1].name;
+            texto = turnosEspeciales[1].message;
+        } else if (indiceActual === totalTurnosRegulares -1) {
+            nombre = turnosEspeciales[2].name;
+            texto = turnosEspeciales[2].message;
+        } else {
+            // Lógica para catequizados y catequistas
+            let indiceRegular = indiceActual;
+            if (indiceActual >= intervaloEspecial -1) indiceRegular--;
+            if (indiceActual >= (intervaloEspecial * 2) -1) indiceRegular--;
+            if (indiceActual >= totalTurnosRegulares -1) indiceRegular--;
+
+            const tipoDeTurno = indiceRegular % 6;
+            const indiceEnCicloCatequista = Math.floor(indiceRegular / 6);
+
+            if (tipoDeTurno === 5) {
+                // Es un turno de catequista
+                nombre = catequistas[indiceEnCicloCatequista % catequistas.length];
+                texto = "Reza por nuestro catequista";
+            } else {
+                // Es un turno de catequizado
+                const indiceCatequizado = (indiceRegular - indiceEnCicloCatequista) % catequizados.length;
+                nombre = catequizados[indiceCatequizado];
+                texto = "Reza por nuestro catequizado";
+            }
+        }
         
         let nextIndex = (counterData.indice + 1) % totalCiclo;
 
@@ -289,7 +284,7 @@ module.exports = async (req, res) => {
             .update({ indice: nextIndex })
             .eq('id', counterData.id);
 
-        res.status(200).json({ name, message });
+        res.status(200).json({ name: nombre, message: texto });
 
     } catch (error) {
         console.error("Server error:", error);
