@@ -11,6 +11,7 @@ body {
     min-height: 100vh; /* Ocupa toda la altura de la pantalla */
     text-align: center;
     box-sizing: border-box; /* Incluye padding y border en el cálculo del ancho/alto */
+    font-size: 1.5em; /* Aumento del 50% en la tipografía base */
 }
 
 .content-container {
@@ -25,12 +26,12 @@ body {
 
 h1 {
     color: #4682b4; /* Celeste */
-    font-size: 2em;
+    font-size: 1.7em; /* Ajuste del tamaño del título */
     margin-bottom: 20px;
 }
 
 #nombre-catequizado {
-    font-size: 2.5em;
+    font-size: 2em; /* Ajuste del tamaño del nombre */
     color: #00008b; /* Azul oscuro */
     padding: 15px;
     background-color: #f0f8ff;
@@ -40,25 +41,35 @@ h1 {
 }
 
 .logo {
-    width: 80px;
+    width: 160px; /* Doble del tamaño original (80px * 2) */
     height: auto;
     margin-top: 20px;
+    margin-bottom: 10px; /* Reduzco un poco el margen inferior para la frase */
+}
+
+.frase-acutis {
+    font-family: 'Courier New', Courier, monospace; /* Simula tipografía monospace */
+    font-size: 0.8em; /* Tamaño más pequeño para la frase */
+    color: #777; /* Color grisáceo */
     margin-bottom: 20px;
 }
 
 /* Media Query para pantallas aún más pequeñas */
 @media (max-width: 400px) {
     h1 {
-        font-size: 1.6em;
+        font-size: 1.4em;
         margin-bottom: 15px;
     }
     #nombre-catequizado {
-        font-size: 1.8em;
+        font-size: 1.6em;
         padding: 10px;
     }
     .logo {
-        width: 60px;
+        width: 120px; /* Ajuste para pantallas más pequeñas */
         margin-top: 15px;
-        margin-bottom: 15px;
+        margin-bottom: 5px;
+    }
+    .frase-acutis {
+        font-size: 0.7em;
     }
 }
