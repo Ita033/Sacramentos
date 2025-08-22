@@ -6,12 +6,14 @@ body {
     color: #333;
     display: flex;
     flex-direction: column;
-    justify-content: space-between; /* Distribuye el espacio verticalmente */
+    justify-content: flex-start; /* Alinea el contenido al inicio (arriba) */
     align-items: center; /* Centra horizontalmente */
     min-height: 100vh; /* Ocupa toda la altura de la pantalla */
     text-align: center;
     box-sizing: border-box; /* Incluye padding y border en el cálculo del ancho/alto */
     font-size: 1.5em; /* Aumento del 50% en la tipografía base */
+    padding-top: 5vh; /* Empuja el contenido hacia abajo desde la parte superior (ajusta según sea necesario) */
+    padding-bottom: 15vh; /* Reduce el espacio en la parte inferior */
 }
 
 .content-container {
