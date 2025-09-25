@@ -174,6 +174,13 @@ const catequistas = [
     "Isidora Montiel",
     "Rosario Salas",
     "Clemente Lecaros",
+    "Italo Lubiano",
+    "Rafael Rudloff",
+    "Agustín Kast",
+    "María Paz Gonzalez",
+    "Patricio Canales",
+    "María Errázuriz",
+    "Pamela Rubilar",
     "Enzo Giuliano Troncoso",
     "Matías Guzmán",
     "Santiago Guridi",
@@ -214,7 +221,6 @@ const catequistas = [
 
 const turnosEspeciales = [
     { name: "Fray Gonzalo", message: "Reza por nuestro asesor" },
-    { name: "Italo Lubiano", message: "Reza por nuestro ingeniero" },
     { name: "Licetty Ojeda", message: "Reza por nuestra ingeniera y diseñadora" }
 ];
 
@@ -296,4 +302,5 @@ module.exports = async (req, res) => {
         res.status(500).json({ error: 'Error del servidor. Por favor, revisa los logs de Vercel.' });
     }
 };
+
 
