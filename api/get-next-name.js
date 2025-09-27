@@ -224,24 +224,32 @@ const turnosEspeciales = [
     { name: "Licetty Ojeda", message: "Reza por nuestra ingeniera y diseñadora" }
 ];
 
-const totalTurnosRegulares = catequizados.length + catequistas.length; // 158 + 50 = 208
-const totalCiclo = totalTurnosRegulares + turnosEspeciales.length; // 208 + 2 = 210
+// ***********************************************
+// *** CÁLCULOS DE CICLO CORREGIDOS ***
+// ***********************************************
+// El problema es que en el ciclo regular no se alternan 1 a 1, sino que es un grupo de 4 catequizados y 1 catequista.
+const CATEQUIZADOS_POR_CATEQUISTA = 4;
+const SUBCICLO_LENGTH = CATEQUIZADOS_POR_CATEQUISTA + 1; // 5 turnos por ciclo
+const totalTurnosRegulares = catequistas.length * SUBCICLO_LENGTH; // 52 * 5 = 260
+const totalCiclo = totalTurnosRegulares + turnosEspeciales.length; // 260 + 2 = 262
 
-// Puntos de inserción para los turnos especiales
-const intervaloEspecial = Math.floor(totalTurnosRegulares / turnosEspeciales.length);
-const turnoEspecial1 = intervaloEspecial;
-const turnoEspecial2 = intervaloEspecial * 2;
+// Los turnos especiales son equidistantes dentro de los 260 turnos
+const intervaloEspecial = Math.floor(totalTurnosRegulares / turnosEspeciales.length); // 260 / 2 = 130
+const turnoEspecial1 = intervaloEspecial; // Índice 130
+const turnoEspecial2 = totalTurnosRegulares; // Índice 260 (el último turno antes de que el ciclo se reinicie a 0)
 
 module.exports = async (req, res) => {
     try {
         const supabase = createClient(supabaseUrl, supabaseKey);
 
-        const { data: counterData, error } = await supabase
+        let counterData;
+        const { data: fetchResult, error: fetchError } = await supabase
             .from('contador')
             .select('indice, id')
             .single();
 
-        if (error || !counterData) {
+        if (fetchError || !fetchResult) {
+            // Manejo de error o tabla vacía: inserta y usa el nuevo índice
             const { data: newData, error: newError } = await supabase
                 .from('contador')
                 .insert([{ indice: 0 }])
@@ -249,6 +257,8 @@ module.exports = async (req, res) => {
                 .single();
             if (newError) throw newError;
             counterData = newData;
+        } else {
+            counterData = fetchResult;
         }
 
         const indiceActual = counterData.indice % totalCiclo;
@@ -263,26 +273,28 @@ module.exports = async (req, res) => {
             texto = turnosEspeciales[1].message;
         } else {
             // 2. Lógica para catequizados y catequistas
-            // Ajustamos el índice para que ignore los turnos especiales
+            // Ajuste para ignorar los turnos especiales
             let indiceRegular = indiceActual;
             if (indiceActual > turnoEspecial1) indiceRegular--;
             if (indiceActual > turnoEspecial2) indiceRegular--;
 
-            const tipoDeTurno = indiceRegular % 5;
-            
-            if (tipoDeTurno === 5) {
+            const tipoDeTurno = indiceRegular % SUBCICLO_LENGTH; // 0, 1, 2, 3 (catequizado) o 4 (catequista)
+
+            if (tipoDeTurno === CATEQUIZADOS_POR_CATEQUISTA) {
                 // Es un turno de catequista
-                const indiceCatequista = Math.floor(indiceRegular / 5);
+                const indiceCatequista = Math.floor(indiceRegular / SUBCICLO_LENGTH);
                 nombre = catequistas[indiceCatequista % catequistas.length];
                 texto = "Reza por nuestro catequista";
             } else {
                 // Es un turno de catequizado
-                const indiceCatequizado = Math.floor(indiceRegular / 5) * 4 + tipoDeTurno;
+                // Corrección: Asegura que todos los 158 catequizados se muestren
+                const indiceCatequizado = (Math.floor(indiceRegular / SUBCICLO_LENGTH) * CATEQUIZADOS_POR_CATEQUISTA) + tipoDeTurno;
                 nombre = catequizados[indiceCatequizado % catequizados.length];
                 texto = "Reza por nuestro catequizado";
             }
         }
-        
+
+        // 3. Actualizar el contador (El código está correcto, el problema es el tipo de dato/permiso)
         let nextIndex = (counterData.indice + 1) % totalCiclo;
 
         await supabase
@@ -297,6 +309,3 @@ module.exports = async (req, res) => {
         res.status(500).json({ error: 'Error del servidor. Por favor, revisa los logs de Vercel.' });
     }
 };
-
-
-
