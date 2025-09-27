@@ -224,14 +224,13 @@ const turnosEspeciales = [
     { name: "Licetty Ojeda", message: "Reza por nuestra ingeniera y diseñadora" }
 ];
 
-const totalTurnosRegulares = (catequistas.length * 4) + catequistas.length; // 44 * 5 + 44 = 264 Ahora 4 no 5
-const totalCiclo = totalTurnosRegulares + turnosEspeciales.length; // 264 + 3 = 267
+const totalTurnosRegulares = catequizados.length + catequistas.length; // 158 + 50 = 208
+const totalCiclo = totalTurnosRegulares + turnosEspeciales.length; // 208 + 2 = 210
 
 // Puntos de inserción para los turnos especiales
-const intervaloEspecial = Math.floor(totalTurnosRegulares / turnosEspeciales.length); // 264 / 3 = 88
-const turnoEspecial1 = intervaloEspecial; // El turno 88
-const turnoEspecial2 = intervaloEspecial * 2; // El turno 176
-const turnoEspecial3 = totalTurnosRegulares; // El turno 264
+const intervaloEspecial = Math.floor(totalTurnosRegulares / turnosEspeciales.length);
+const turnoEspecial1 = intervaloEspecial;
+const turnoEspecial2 = intervaloEspecial * 2;
 
 module.exports = async (req, res) => {
     try {
@@ -262,27 +261,23 @@ module.exports = async (req, res) => {
         } else if (indiceActual === turnoEspecial2) {
             nombre = turnosEspeciales[1].name;
             texto = turnosEspeciales[1].message;
-        } else if (indiceActual === turnoEspecial3) {
-            nombre = turnosEspeciales[2].name;
-            texto = turnosEspeciales[2].message;
         } else {
             // 2. Lógica para catequizados y catequistas
             // Ajustamos el índice para que ignore los turnos especiales
             let indiceRegular = indiceActual;
             if (indiceActual > turnoEspecial1) indiceRegular--;
             if (indiceActual > turnoEspecial2) indiceRegular--;
-            if (indiceActual > turnoEspecial3) indiceRegular--;
 
-            const tipoDeTurno = indiceRegular % 6; // 0, 1, 2, 3, 4 (catequizado) o 5 (catequista)
+            const tipoDeTurno = indiceRegular % 5;
             
             if (tipoDeTurno === 5) {
                 // Es un turno de catequista
-                const indiceCatequista = Math.floor(indiceRegular / 6);
+                const indiceCatequista = Math.floor(indiceRegular / 5);
                 nombre = catequistas[indiceCatequista % catequistas.length];
                 texto = "Reza por nuestro catequista";
             } else {
                 // Es un turno de catequizado
-                const indiceCatequizado = Math.floor(indiceRegular / 6) * 5 + tipoDeTurno;
+                const indiceCatequizado = Math.floor(indiceRegular / 5) * 4 + tipoDeTurno;
                 nombre = catequizados[indiceCatequizado % catequizados.length];
                 texto = "Reza por nuestro catequizado";
             }
@@ -302,5 +297,6 @@ module.exports = async (req, res) => {
         res.status(500).json({ error: 'Error del servidor. Por favor, revisa los logs de Vercel.' });
     }
 };
+
 
 
