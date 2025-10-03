@@ -295,8 +295,8 @@ module.exports = async (req, res) => {
         }
 
         // 3. Actualizar el contador (El código está correcto, el problema es el tipo de dato/permiso)
-        let nextIndex = (counterData.indice + 1) % totalCiclo;
-
+        // let nextIndex = (counterData.indice + 1) % totalCiclo;
+        let nextIndex = counterData.indice + 1;
         await supabase
             .from('contador')
             .update({ indice: nextIndex })
