@@ -224,19 +224,15 @@ const turnosEspeciales = [
     { name: "Licetty Ojeda", message: "Reza por nuestra ingeniera y diseñadora" }
 ];
 
-// ***********************************************
-// *** CÁLCULOS DE CICLO CORREGIDOS ***
-// ***********************************************
-// El problema es que en el ciclo regular no se alternan 1 a 1, sino que es un grupo de 4 catequizados y 1 catequista.
+// Configuración de ciclo
 const CATEQUIZADOS_POR_CATEQUISTA = 4;
-const SUBCICLO_LENGTH = CATEQUIZADOS_POR_CATEQUISTA + 1; // 5 turnos por ciclo
-const totalTurnosRegulares = catequistas.length * SUBCICLO_LENGTH; // 52 * 5 = 260
+const SUBCICLO_LENGTH = CATEQUIZADOS_POR_CATEQUISTA + 1; // 5
+const totalSubciclos = catequistas.length; // Un subciclo por catequista
+const totalTurnosRegulares = totalSubciclos * SUBCICLO_LENGTH; // 52 * 5 = 260
 const totalCiclo = totalTurnosRegulares + turnosEspeciales.length; // 260 + 2 = 262
 
-// Los turnos especiales son equidistantes dentro de los 260 turnos
-const intervaloEspecial = Math.floor(totalTurnosRegulares / turnosEspeciales.length); // 260 / 2 = 130
-const turnoEspecial1 = intervaloEspecial; // Índice 130
-const turnoEspecial2 = totalTurnosRegulares; // Índice 260 (el último turno antes de que el ciclo se reinicie a 0)
+const turnoEspecial1 = Math.floor(totalTurnosRegulares / 2); // 130
+const turnoEspecial2 = totalTurnosRegulares; // 260
 
 module.exports = async (req, res) => {
     try {
@@ -264,7 +260,7 @@ module.exports = async (req, res) => {
         const indiceActual = counterData.indice % totalCiclo;
         let nombre, texto;
 
-        // 1. Lógica para los turnos especiales
+        // Turnos especiales
         if (indiceActual === turnoEspecial1) {
             nombre = turnosEspeciales[0].name;
             texto = turnosEspeciales[0].message;
@@ -272,30 +268,27 @@ module.exports = async (req, res) => {
             nombre = turnosEspeciales[1].name;
             texto = turnosEspeciales[1].message;
         } else {
-            // 2. Lógica para catequizados y catequistas
-            // Ajuste para ignorar los turnos especiales
+            // Ajustar el índice regular para saltar los turnos especiales
             let indiceRegular = indiceActual;
             if (indiceActual > turnoEspecial1) indiceRegular--;
             if (indiceActual > turnoEspecial2) indiceRegular--;
 
-            const tipoDeTurno = indiceRegular % SUBCICLO_LENGTH; // 0, 1, 2, 3 (catequizado) o 4 (catequista)
+            const subciclo = Math.floor(indiceRegular / SUBCICLO_LENGTH);
+            const posicionEnSubciclo = indiceRegular % SUBCICLO_LENGTH;
 
-            if (tipoDeTurno === CATEQUIZADOS_POR_CATEQUISTA) {
-                // Es un turno de catequista
-                const indiceCatequista = Math.floor(indiceRegular / SUBCICLO_LENGTH);
-                nombre = catequistas[indiceCatequista % catequistas.length];
+            if (posicionEnSubciclo === CATEQUIZADOS_POR_CATEQUISTA) {
+                // Catequista
+                nombre = catequistas[subciclo % catequistas.length];
                 texto = "Reza por nuestro catequista";
             } else {
-                // Es un turno de catequizado
-                // Corrección: Asegura que todos los 158 catequizados se muestren
-                const indiceCatequizado = (Math.floor(indiceRegular / SUBCICLO_LENGTH) * CATEQUIZADOS_POR_CATEQUISTA) + tipoDeTurno;
+                // Catequizado
+                const indiceCatequizado = subciclo * CATEQUIZADOS_POR_CATEQUISTA + posicionEnSubciclo;
                 nombre = catequizados[indiceCatequizado % catequizados.length];
                 texto = "Reza por nuestro catequizado";
             }
         }
 
-        // 3. Actualizar el contador (El código está correcto, el problema es el tipo de dato/permiso)
-        // let nextIndex = (counterData.indice + 1) % totalCiclo;
+        // Actualizar el contador
         let nextIndex = counterData.indice + 1;
         await supabase
             .from('contador')
